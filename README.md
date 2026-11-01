@@ -4,7 +4,7 @@
 
 DocuMind AI is an advanced Retrieval-Augmented Generation (RAG) application that allows users to upload documents, search their content, and receive context-aware answers powered by Large Language Models (LLMs).
 
-Built with Python, Streamlit, Sentence Transformers, FAISS, BM25, and Gemini AI, this project demonstrates an end-to-end RAG architecture with hybrid retrieval, reranking, grounded generation, source citations, and evaluation capabilities.
+Built with Python, Streamlit, Sentence Transformers, FAISS, BM25, and Groq AI, this project demonstrates an end-to-end RAG architecture with hybrid retrieval, reranking, grounded generation, source citations, and evaluation capabilities.
 
 > An AI-powered document intelligence system designed to make information retrieval more accurate, transparent, and efficient.
 
@@ -55,6 +55,7 @@ If sufficient supporting evidence is unavailable, the system can avoid generatin
 - Improved ranking of retrieved document chunks.
 
 ### 7. Grounded AI Generation
+- Groq AI integration.
 - Gemini AI integration.
 - Anthropic provider support through the LLM client.
 - Context-aware answer generation.
@@ -99,7 +100,7 @@ flowchart TD
     L --> M[Context Building]
     M --> N[Confidence Check]
 
-    N --> O[Gemini / Anthropic LLM]
+    N --> O[Groq / Gemini / Anthropic LLM]
     O --> P[Grounded Answer with Citations]
     P --> Q[Streamlit Interface]
 ```
@@ -110,7 +111,7 @@ flowchart TD
 |---|---|
 | Programming Language | Python 3.11 |
 | Frontend / UI | Streamlit |
-| LLM Integration | Google Gemini, Anthropic |
+| LLM Integration | Groq, Google Gemini, Anthropic |
 | Embeddings | Sentence Transformers |
 | Vector Database | FAISS, Qdrant (optional) |
 | Sparse Retrieval | BM25 |
@@ -184,7 +185,7 @@ DocuMind-AI-RAG/
 
 - Python 3.11 recommended.
 - Git.
-- Google Gemini API key (for Gemini generation).
+- Groq API key (for Groq generation).
 - Internet connection for downloading embedding and reranking models on first use.
 
 ### 1. Clone the Repository
@@ -237,19 +238,19 @@ cp .env.example .env
 
 Open `.env` and configure your LLM provider.
 
-Example Gemini configuration:
+Example Groq configuration:
 
 ```env
-LLM_PROVIDER=gemini
-LLM_MODEL=your-supported-gemini-model
-API_KEY=your_gemini_api_key_here
+LLM_PROVIDER=groq
+LLM_MODEL=openai/gpt-oss-20b
+API_KEY=your_groq_api_key_here
 ```
 
-Replace the model placeholder with a model currently supported by your Google AI Studio API account.
+Use a model ID that is currently available to your Groq account. Model availability and rate limits depend on your account and the selected model.
 
 You can generate an API key through:
 
-https://aistudio.google.com/apikey
+https://console.groq.com/keys
 
 **Security:** Never upload your actual `.env` file or API keys to GitHub.
 
@@ -410,9 +411,9 @@ DocuMind AI can be deployed using Streamlit Community Cloud.
 Example:
 
 ```toml
-LLM_PROVIDER = "gemini"
-LLM_MODEL = "your-supported-gemini-model"
-API_KEY = "your_gemini_api_key_here"
+LLM_PROVIDER = "groq"
+LLM_MODEL = "openai/gpt-oss-20b"
+API_KEY = "your_groq_api_key_here"
 VECTOR_DB = "faiss"
 ```
 
