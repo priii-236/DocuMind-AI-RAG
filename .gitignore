@@ -1,0 +1,51 @@
+# Secrets
+.env
+.streamlit/secrets.toml
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.venv/
+venv/
+env/
+
+# Vector store / generated data
+vector_store/*.faiss
+vector_store/*.pkl
+logs/
+data/processed/*
+!data/processed/.gitkeep
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
+
+# Notebooks checkpoints
+.ipynb_checkpoints/
+
+# Distribution
+build/
+dist/
+
+
+# Additional Python environments
+.venv311/
+
+# Streamlit
+.streamlit/config.toml
+
+# Temporary files
+*.log
+*.tmp
+*.bak
+
+# Local uploaded documents
+uploads/
+data/uploads/
+
+# Python cache
+*.pyo
