@@ -1,6 +1,6 @@
 
 """
-LLMClient: Swappable wrapper for Anthropic and Google Gemini.
+LLMClient: Swappable wrapper for Anthropic, Google Gemini and Groq.
 Reads LLM_PROVIDER, LLM_MODEL and API_KEY from settings.
 """
 
@@ -45,10 +45,17 @@ class LLMClient:
                 api_key=self.api_key
             )
 
+        elif self.provider == "groq":
+            from groq import Groq
+
+            self._client = Groq(
+                api_key=self.api_key
+            )
+
         else:
             raise LLMConfigurationError(
                 f"Unsupported provider: {self.provider}. "
-                "Supported providers: anthropic, gemini."
+                "Supported providers: anthropic, gemini, groq."
             )
 
     def complete(
@@ -116,6 +123,32 @@ class LLMClient:
                 )
 
                 return (response.text or "").strip()
+
+            elif self.provider == "groq":
+
+                messages = []
+
+                if system:
+                    messages.append({
+                        "role": "system",
+                        "content": system,
+                    })
+
+                messages.append({
+                    "role": "user",
+                    "content": prompt,
+                })
+
+                response = self._client.chat.completions.create(
+                    model=self.model,
+                    messages=messages,
+                    max_tokens=max_tokens,
+                    temperature=temperature,
+                )
+
+                return (
+                    response.choices[0].message.content or ""
+                ).strip()
 
         except Exception as exc:
             logger.error("LLM call failed: %s", exc)
