@@ -1,250 +1,516 @@
-# 🧠 DocuMind AI — Advanced Enterprise RAG Intelligence Assistant
+# 🧠 DocuMind AI — Advanced RAG Intelligence Assistant
 
-**"Ask your documents. Get grounded answers with evidence."**
+**Ask your documents. Get grounded answers with evidence.**
 
-An end-to-end, production-style Retrieval-Augmented Generation (RAG) system built as a
-Data Science / Generative AI portfolio project — not a "chat with PDF" toy. It implements hybrid
-(dense + sparse) retrieval, query rewriting, cross-encoder reranking, context compression, grounded
-generation with citations, hallucination control, a full retrieval + generation evaluation suite,
-and a baseline-vs-advanced experiment framework with measured results.
+DocuMind AI is an advanced Retrieval-Augmented Generation (RAG) application that allows users to upload documents, search their content, and receive context-aware answers powered by Large Language Models (LLMs).
+
+Built with Python, Streamlit, Sentence Transformers, FAISS, BM25, and Gemini AI, this project demonstrates an end-to-end RAG architecture with hybrid retrieval, reranking, grounded generation, source citations, and evaluation capabilities.
+
+> An AI-powered document intelligence system designed to make information retrieval more accurate, transparent, and efficient.
 
 ---
 
-## 1. Project Overview
+## 🚀 Project Overview
 
-DocuMind AI lets you upload documents (PDF, DOCX, TXT, CSV, Markdown, HTML), builds a searchable
-knowledge base from them, and answers natural-language questions with citations back to the exact
-document, page, and passage the answer came from. Every answer is grounded: if the knowledge base
-doesn't contain the answer, the system says so instead of guessing.
+Traditional LLMs may generate inaccurate answers or hallucinate information because they do not automatically have access to a user's private documents.
 
-## 2. Problem Statement
+DocuMind AI addresses this challenge through Retrieval-Augmented Generation.
 
-Plain LLMs hallucinate and have no access to private or recent documents. Naive "PDF chatbots"
-(embed → FAISS → LLM) retrieve poorly on ambiguous or multi-part questions, mix in irrelevant
-context, and give no way to verify an answer. DocuMind AI addresses this with a multi-stage
-retrieval pipeline, explicit evaluation, and full traceability from answer back to source.
+Users can upload documents, build a searchable knowledge base, and ask natural-language questions. The system retrieves relevant document chunks and uses the configured LLM to generate answers grounded in the retrieved context.
 
-## 3. Why RAG?
+If sufficient supporting evidence is unavailable, the system can avoid generating unsupported answers through its confidence-based grounding mechanism.
 
-Retrieval-Augmented Generation grounds an LLM's answer in retrieved evidence instead of relying
-solely on parametric (trained-in) knowledge. This reduces hallucination, allows citation of exact
-sources, and lets the system answer questions about content the model was never trained on.
+## ✨ Key Features
 
-## 4. Architecture
+### 1. Multi-Format Document Ingestion
+- Upload PDF, DOCX, TXT, CSV, Markdown, and HTML files.
+- Extract text and document metadata.
+- Preserve page and section information where available.
+- Automatically split documents into manageable chunks.
+
+### 2. Intelligent Chunking
+- Recursive chunking.
+- Configurable chunk size and overlap.
+- Structured document segmentation.
+
+### 3. Semantic Embeddings
+- Sentence Transformers integration.
+- Default embedding model: `sentence-transformers/all-MiniLM-L6-v2`.
+- Local embedding generation without a paid embedding API.
+
+### 4. Hybrid Retrieval
+- Dense retrieval using FAISS vector search.
+- Sparse retrieval using BM25.
+- Hybrid score fusion.
+- Configurable retrieval parameters.
+
+### 5. Query Processing
+- Query rewriting.
+- Multi-query expansion.
+- Conversational context support.
+
+### 6. Cross-Encoder Reranking
+- Relevance-based candidate reranking.
+- Default model: `cross-encoder/ms-marco-MiniLM-L-6-v2`.
+- Improved ranking of retrieved document chunks.
+
+### 7. Grounded AI Generation
+- Gemini AI integration.
+- Anthropic provider support through the LLM client.
+- Context-aware answer generation.
+- Source-based citations.
+- Confidence thresholding to reduce unsupported answers.
+
+### 8. Premium Streamlit Interface
+- Modern dark-themed interface.
+- Interactive document question-answering experience.
+- Analytics Dashboard.
+- Document Explorer.
+- Retrieval Debugger.
+- Retrieval and generation performance insights.
+
+### 9. Evaluation & Experimentation
+- Retrieval evaluation.
+- Generation evaluation.
+- Precision, Recall, MRR, and NDCG metrics.
+- Faithfulness and answer relevance evaluation.
+- Baseline vs. Advanced RAG experiments.
+
+---
+
+## 🏗️ System Architecture
 
 ```mermaid
 flowchart TD
-    A[User uploads PDF/DOCX/TXT/CSV/MD/HTML] --> B[Ingestion Layer]
-    B --> C[Chunking: recursive / token / semantic]
-    C --> D[Embedding Service - sentence-transformers]
-    D --> E[Vector Store: FAISS or Qdrant]
-    C --> F[BM25 Sparse Index]
+    A[Document Upload] --> B[Document Ingestion]
+    B --> C[Text Extraction]
+    C --> D[Text Chunking]
+    D --> E[Sentence Transformer Embeddings]
+    E --> F[FAISS Vector Store]
+    D --> G[BM25 Index]
 
-    G[User Query] --> H{Conversation History?}
-    H -->|Yes| I[Contextual Query Rewrite]
-    H -->|No| J[Query Expansion - multi-query]
-    I --> J
-    J --> K[Hybrid Retrieval: Dense + Sparse fusion]
-    E --> K
-    F --> K
-    K --> L[Top 20-30 Candidates]
-    L --> M[Cross-Encoder Reranker]
-    M --> N[Context Builder: dedup + compress]
-    N --> O{Confidence >= threshold?}
-    O -->|No| P["I couldn't find enough evidence..."]
-    O -->|Yes| Q[Grounded LLM Generation with Citations]
-    Q --> R[Answer + Sources shown in Streamlit]
+    H[User Query] --> I[Query Rewriting and Expansion]
+    I --> J[Hybrid Retrieval]
+    F --> J
+    G --> J
+
+    J --> K[Candidate Results]
+    K --> L[Cross Encoder Reranking]
+    L --> M[Context Building]
+    M --> N[Confidence Check]
+
+    N --> O[Gemini / Anthropic LLM]
+    O --> P[Grounded Answer with Citations]
+    P --> Q[Streamlit Interface]
 ```
 
-## 5. Features
+## 🛠️ Technology Stack
 
-- Multi-format ingestion (PDF/DOCX/TXT/CSV/MD/HTML) with metadata + page/section tracking
-- Configurable chunking (recursive, token-aware, semantic)
-- Local, free embedding model (swappable `EmbeddingService` abstraction)
-- Pluggable vector store (`FAISSVectorStore` default, `QdrantVectorStore` optional)
-- Hybrid dense + sparse (BM25) retrieval with configurable fusion weight (α)
-- Conversational query rewriting + multi-query expansion
-- Cross-encoder reranking (`RerankerService`)
-- Context compression: dedup, relevance floor, character budget
-- Grounded generation with inline citations `[1]`, `[2]`
-- Hallucination control via confidence thresholding
-- Full retrieval + generation evaluation suite (Precision/Recall/MRR/NDCG + LLM-judge Faithfulness/Relevancy/Context Precision/Recall)
-- Baseline vs Advanced RAG comparison experiments
-- Streamlit UI: chat, Analytics Dashboard, Document Explorer, Retrieval Debugger
-- Dockerized, Streamlit-Cloud-ready, `.env`-based configuration, no hardcoded secrets
-
-## 6. Tech Stack
-
-Python 3.11 · Streamlit · sentence-transformers · FAISS / Qdrant · rank-bm25 · Anthropic Claude ·
-pandas/plotly · pypdf / python-docx / BeautifulSoup · pytest · Docker
-
-## 7. RAG Pipeline
-
-See the architecture diagram above. Baseline mode (`RAGPipeline.answer_baseline`) skips rewriting,
-hybrid fusion, reranking, and compression — dense retrieval only — and exists purely to produce a
-fair comparison point for the experiments below.
-
-## 8. Retrieval Strategy
-
-`final_score = alpha * normalized_dense_score + (1 - alpha) * normalized_sparse_score`, computed
-per candidate chunk across up to `CANDIDATE_POOL_SIZE` results from each of dense and sparse search,
-merged and de-duplicated across all expanded queries. `alpha` is configurable in the sidebar.
-
-## 9. Reranking
-
-A cross-encoder (`cross-encoder/ms-marco-MiniLM-L-6-v2` by default) re-scores the fused candidate
-pool directly against the query text (much more accurate than embedding similarity alone) and
-returns the final top-k. Falls back to a no-op passthrough if the reranker model can't load, so the
-app never crashes because of it.
-
-## 10. Evaluation
-
-`evaluation/evaluation_dataset.csv` contains 41 hand-written questions across factual, conceptual,
-comparison, reasoning, and numerical categories at easy/medium/hard difficulty, targeting the
-bundled sample knowledge base.
-
-- **Retrieval**: `python -m src.evaluation.evaluate_retrieval`
-- **Generation**: `python -m src.evaluation.evaluate_generation` (uses an LLM-as-judge, so it calls the configured LLM — costs a few cents in API usage)
-
-> **Note on RAGAS**: generation metrics are computed with a lightweight LLM-as-judge implementation
-> following RAGAS's own metric definitions (Faithfulness, Answer Relevancy, Context Precision,
-> Context Recall), rather than the `ragas` package itself. `ragas` pulls in a heavy, fast-moving
-> dependency tree that frequently breaks on Streamlit Community Cloud; this keeps the project
-> deployable while measuring the same things.
-
-## 11. Experiments
-
-`python -m experiments.run_experiments` sweeps:
-
-1. Retrieval method — dense vs BM25 vs hybrid
-2. Reranking — off vs on
-3. Top-K — 3/5/8/10
-4. Hybrid α — 0.0/0.3/0.5/0.7/1.0
-
-Results are written to `experiments/results.csv` and visualized on the **Analytics Dashboard**
-page in the Streamlit app.
-
-## 12. Results
-
-Run the experiments against the bundled sample knowledge base to populate this section with your
-own numbers — the project deliberately does **not** ship fabricated metrics. Typical pattern
-observed on the sample dataset: hybrid retrieval improves Recall@5 over dense-only by giving exact
-keyword matches (e.g. "p-value", "CTE") a path into the result set that pure embedding similarity
-sometimes misses, and reranking further improves Precision@5 by re-scoring the candidate pool
-directly against the query.
-
-## 13. Screenshots
-
-Run the app locally (`streamlit run app/streamlit_app.py`) and add your own screenshots here —
-the chat interface, Analytics Dashboard, Document Explorer, and Retrieval Debugger pages.
-
-## 14. Installation
-
-```bash
-git clone <your-repo-url>
-cd DocuMind-AI-RAG
-python -m venv venv
-source venv/bin/activate      # Windows: venv\Scripts\activate
-pip install -r requirements.txt
-cp .env.example .env          # then edit .env and add your API_KEY
-```
-
-## 15. Environment Variables
-
-See `.env.example` for the full list. At minimum, set `API_KEY` (an Anthropic API key) to enable
-answer generation — everything else (embeddings, FAISS, chunking) works with zero configuration.
-
-## 16. Running Locally
-
-```bash
-python scripts/load_sample_data.py     # optional: index the bundled sample knowledge base
-streamlit run app/streamlit_app.py     # or: python run.py
-```
-Open http://localhost:8501.
-
-## 17. Streamlit Deployment (Streamlit Community Cloud)
-
-1. Push this repository to GitHub (see §19).
-2. Go to https://share.streamlit.io → "New app" → select your repo, branch `main`, and set the
-   main file path to `app/streamlit_app.py`.
-3. In the app's **Settings → Secrets**, paste the contents of your `.env` in TOML format, e.g.:
-   ```toml
-   API_KEY = "sk-ant-..."
-   LLM_PROVIDER = "anthropic"
-   LLM_MODEL = "claude-sonnet-4-5"
-   VECTOR_DB = "faiss"
-   ```
-4. Deploy. `VECTOR_DB=faiss` (the default) needs no external service. If you set `VECTOR_DB=qdrant`,
-   also add `QDRANT_URL` and `QDRANT_API_KEY` (e.g. from a free Qdrant Cloud cluster) to secrets.
-
-## 18. Docker Usage
-
-```bash
-docker build -t documind-ai .
-docker run -p 8501:8501 --env-file .env documind-ai
-# or, with a local Qdrant instance included:
-docker compose up
-```
-
-## 19. Project Structure
-
-```text
-DocuMind-AI-RAG/
-    app/                    Streamlit UI (chat + Analytics/Explorer/Debugger pages)
-    src/
-        ingestion/          File loaders, text normalization, metadata
-        chunking/           Recursive / token / semantic chunking strategies
-        embeddings/         EmbeddingService abstraction (local sentence-transformers)
-        retrieval/          VectorStore (FAISS/Qdrant), BM25, hybrid fusion, KnowledgeBase
-        reranking/          Cross-encoder RerankerService
-        generation/         LLMClient, ContextBuilder, RAGPipeline (baseline + advanced)
-        evaluation/         Retrieval + generation metrics and eval scripts
-        memory/             Conversation memory for contextual query rewriting
-        observability/      Logging + full query tracing
-        config/             Central settings (env-var driven)
-    tests/                  pytest unit tests (26 tests, fully offline)
-    data/raw/               Sample knowledge base (original, license-free Markdown docs)
-    evaluation/             evaluation_dataset.csv (41 Q&A pairs)
-    experiments/            run_experiments.py + results.csv (generated)
-    scripts/                load_sample_data.py
-    vector_store/           FAISS index persistence (gitignored)
-    requirements.txt / .env.example / Dockerfile / docker-compose.yml / run.py
-```
-
-## 20. Future Improvements
-
-- Add a second LLM provider (OpenAI/Gemini) behind the same `LLMClient` interface
-- Persist evaluation run history (not just the latest `results.csv`) for trend tracking
-- Add MLflow experiment tracking as an optional layer
-- Support scanned/image PDFs via OCR fallback
-- Add a feedback (👍/👎) loop on answers to build a fine-tuning-quality dataset
-
-## 21. Limitations
-
-- Local FAISS mode is single-process/single-machine (fine for a portfolio demo, not for
-  multi-user production scale — use `VECTOR_DB=qdrant` for that).
-- The generation evaluation's LLM-as-judge metrics are an approximation, not a substitute for
-  human evaluation on a high-stakes deployment.
-- Scanned/image-only PDFs are not OCR'd out of the box.
-- The reranker and embedding model both run on CPU by default; large document sets will be slower
-  without a GPU.
-
-## 22. Author
-
-**Makwana Priyanka** — B.E. Information Technology, focus: Data Science, Machine Learning,
-Generative AI. Project role: Data Scientist / ML & GenAI Project Developer.
+| Category | Technologies |
+|---|---|
+| Programming Language | Python 3.11 |
+| Frontend / UI | Streamlit |
+| LLM Integration | Google Gemini, Anthropic |
+| Embeddings | Sentence Transformers |
+| Vector Database | FAISS, Qdrant (optional) |
+| Sparse Retrieval | BM25 |
+| Reranking | Cross-Encoder |
+| Data Processing | Pandas, NumPy |
+| Visualization | Plotly |
+| Document Processing | PyPDF, python-docx, BeautifulSoup |
+| Testing | Pytest |
+| Deployment | Streamlit Community Cloud |
+| Containerization | Docker |
 
 ---
 
-## Quick Reference
+## 📂 Project Structure
 
-**Required after extracting/cloning:**
-- Python 3.11 (3.10–3.12 should also work)
-- An Anthropic API key (`API_KEY` in `.env`) for answer generation
-- Internet access on first run only, to download the embedding model (`sentence-transformers/all-MiniLM-L6-v2`, ~90MB) and reranker model (`cross-encoder/ms-marco-MiniLM-L-6-v2`, ~90MB) from Hugging Face — both are cached locally afterward
-- Optional: a Qdrant instance (local via `docker compose up`, or free Qdrant Cloud tier) if you don't want to use the default local FAISS mode
+```text
+DocuMind-AI-RAG/
+│
+├── app/
+│   ├── streamlit_app.py
+│   ├── state.py
+│   └── pages/
+│       ├── 1_Analytics_Dashboard.py
+│       ├── 2_Document_Explorer.py
+│       └── 3_Retrieval_Debugger.py
+│
+├── src/
+│   ├── ingestion/
+│   ├── chunking/
+│   ├── embeddings/
+│   ├── retrieval/
+│   ├── reranking/
+│   ├── generation/
+│   ├── evaluation/
+│   ├── memory/
+│   ├── observability/
+│   ├── config/
+│   └── utils/
+│
+├── data/
+│   ├── raw/
+│   └── processed/
+│
+├── evaluation/
+│   └── evaluation_dataset.csv
+│
+├── experiments/
+│   └── run_experiments.py
+│
+├── scripts/
+│   └── load_sample_data.py
+│
+├── tests/
+│
+├── vector_store/
+│
+├── .env.example
+├── .gitignore
+├── Dockerfile
+├── docker-compose.yml
+├── requirements.txt
+├── run.py
+└── README.md
+```
 
-**Run the tests:**
+---
+
+## ⚙️ Installation & Setup
+
+### Prerequisites
+
+- Python 3.11 recommended.
+- Git.
+- Google Gemini API key (for Gemini generation).
+- Internet connection for downloading embedding and reranking models on first use.
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/priii-236/DocuMind-AI-RAG.git
+
+cd DocuMind-AI-RAG
+```
+
+### 2. Create a Virtual Environment
+
+**Windows:**
+
+```powershell
+python -m venv .venv
+
+.venv\Scripts\activate
+```
+
+**Linux / macOS:**
+
+```bash
+python -m venv .venv
+
+source .venv/bin/activate
+```
+
+### 3. Install Dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Configure Environment Variables
+
+Create a `.env` file from the example:
+
+**Windows:**
+
+```powershell
+Copy-Item .env.example .env
+```
+
+**Linux / macOS:**
+
+```bash
+cp .env.example .env
+```
+
+Open `.env` and configure your LLM provider.
+
+Example Gemini configuration:
+
+```env
+LLM_PROVIDER=gemini
+LLM_MODEL=your-supported-gemini-model
+API_KEY=your_gemini_api_key_here
+```
+
+Replace the model placeholder with a model currently supported by your Google AI Studio API account.
+
+You can generate an API key through:
+
+https://aistudio.google.com/apikey
+
+**Security:** Never upload your actual `.env` file or API keys to GitHub.
+
+---
+
+## ▶️ Run the Application Locally
+
+Start the Streamlit application:
+
+```bash
+streamlit run app/streamlit_app.py
+```
+
+Alternatively:
+
+```bash
+python run.py
+```
+
+Open your browser at:
+
+```text
+http://localhost:8501
+```
+
+### Load Sample Data
+
+To load the bundled sample knowledge base:
+
+```bash
+python scripts/load_sample_data.py
+```
+
+---
+
+## 📊 Application Modules
+
+### 1. Main Chat Interface
+
+- Upload documents.
+- Ask questions about indexed documents.
+- Receive AI-generated answers.
+- View supporting sources and citations.
+- Configure retrieval and generation settings.
+
+### 2. Analytics Dashboard
+
+- Knowledge base statistics.
+- Query activity analytics.
+- Retrieval performance.
+- Latency and confidence insights.
+- Baseline vs. Advanced RAG experiment comparisons.
+
+### 3. Document Explorer
+
+- Browse indexed documents.
+- Inspect document metadata.
+- Explore individual text chunks.
+- Search document content using BM25.
+
+### 4. Retrieval Debugger
+
+- Inspect original and rewritten queries.
+- View dense retrieval results.
+- View sparse BM25 results.
+- Inspect merged and reranked results.
+- Explore final context passed to the LLM.
+- Analyze answer confidence and latency.
+
+---
+
+## 🧪 Evaluation
+
+The project includes an evaluation dataset containing 41 hand-written questions covering different question types and difficulty levels.
+
+### Retrieval Evaluation
+
+```bash
+python -m src.evaluation.evaluate_retrieval
+```
+
+Metrics include:
+
+- Precision
+- Recall
+- Mean Reciprocal Rank (MRR)
+- Normalized Discounted Cumulative Gain (NDCG)
+
+### Generation Evaluation
+
+```bash
+python -m src.evaluation.evaluate_generation
+```
+
+Generation evaluation uses an LLM-as-judge approach to assess:
+
+- Faithfulness
+- Answer Relevancy
+- Context Precision
+- Context Recall
+
+**Note:** Generation evaluation calls the configured LLM and may incur API usage costs.
+
+---
+
+## 🔬 RAG Experiments
+
+Run the experiment framework:
+
+```bash
+python -m experiments.run_experiments
+```
+
+Experiments explore:
+
+1. Dense vs. Sparse vs. Hybrid Retrieval.
+2. Reranking enabled vs. disabled.
+3. Different Top-K values.
+4. Different Hybrid Alpha values.
+
+Results are written to:
+
+```text
+experiments/results.csv
+```
+
+The Analytics Dashboard can visualize available experiment results.
+
+**Note:** Performance metrics should be generated through actual experiment runs. No fabricated benchmark results are reported in this repository.
+
+---
+
+## ☁️ Streamlit Community Cloud Deployment
+
+DocuMind AI can be deployed using Streamlit Community Cloud.
+
+### Deployment Steps
+
+1. Push the project repository to GitHub.
+2. Visit https://share.streamlit.io/
+3. Sign in using GitHub.
+4. Select **Create app**.
+5. Choose the repository:
+
+   `priii-236/DocuMind-AI-RAG`
+
+6. Select branch:
+
+   `main`
+
+7. Set the main file path:
+
+   `app/streamlit_app.py`
+
+8. Open **Advanced settings → Secrets**.
+9. Add your environment configuration in TOML format.
+
+Example:
+
+```toml
+LLM_PROVIDER = "gemini"
+LLM_MODEL = "your-supported-gemini-model"
+API_KEY = "your_gemini_api_key_here"
+VECTOR_DB = "faiss"
+```
+
+10. Click **Deploy**.
+
+**Important deployment considerations:**
+
+- Never expose API keys in source code or GitHub.
+- Configure secrets through Streamlit Community Cloud.
+- Local vector-store files are not included in the Git repository.
+- The knowledge base may need to be initialized again after deployment.
+- Embedding and reranking models require memory and startup time.
+- Cloud resource limits may affect performance with larger documents.
+
+---
+
+## 🐳 Docker Deployment
+
+Build the Docker image:
+
+```bash
+docker build -t documind-ai .
+```
+
+Run the application:
+
+```bash
+docker run -p 8501:8501 --env-file .env documind-ai
+```
+
+Alternatively, use Docker Compose:
+
+```bash
+docker compose up
+```
+
+---
+
+## 🧪 Run Tests
+
+Run the project test suite:
+
 ```bash
 pytest tests/ -v
 ```
+
+---
+
+## 🔐 Security
+
+- API keys are stored in environment variables.
+- `.env` is excluded through `.gitignore`.
+- Streamlit secrets should be configured through the deployment dashboard.
+- Never commit credentials, private documents, or sensitive user data.
+
+---
+
+## ⚠️ Limitations
+
+- Local FAISS storage is designed for a single-process demonstration rather than large-scale multi-user production.
+- Embedding and reranking models run locally and can require significant memory and startup time.
+- Scanned image-only PDFs require an OCR solution, which is not included by default.
+- Generation evaluation depends on the configured LLM provider.
+- Cloud deployment performance depends on available CPU, RAM, and application resource limits.
+
+---
+
+## 🔮 Future Improvements
+
+- Add OCR support for scanned documents.
+- Improve cloud vector database persistence.
+- Add document-level access control.
+- Introduce user feedback and answer-quality monitoring.
+- Add advanced caching and optimized model loading.
+- Integrate MLflow for experiment tracking.
+- Expand evaluation datasets and benchmark comparisons.
+
+---
+
+## 👩‍💻 Author
+
+**Priyanka Makwana**
+
+B.E. Information Technology  
+Focus Areas: Data Science | Machine Learning | Generative AI
+
+- GitHub: https://github.com/priii-236
+- LinkedIn: https://www.linkedin.com/in/priyanka-makwana-51128a295
+
+---
+
+## ⭐ Support
+
+If you find this project interesting, consider giving the repository a ⭐ on GitHub!
+
+**Repository:**  
+https://github.com/priii-236/DocuMind-AI-RAG
+
+---
+
+*Built with Python, RAG, and Generative AI.* 🧠
