@@ -11,7 +11,8 @@ import pandas as pd  # noqa: E402
 import streamlit as st  # noqa: E402
 
 from app.state import init_session_state  # noqa: E402
-from app.styles import (  # noqa: E402
+
+from app.styles import (
     card,
     empty_state,
     footer,
@@ -19,7 +20,9 @@ from app.styles import (  # noqa: E402
     page_header,
     section,
     fact_list,
+    metric_strip,
 )
+
 
 
 st.set_page_config(
