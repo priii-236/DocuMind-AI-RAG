@@ -501,8 +501,8 @@ pytest tests/ -v
 B.E. Information Technology  
 Focus Areas: Data Science | Machine Learning | Generative AI
 
-- GitHub: https://github.com/priii-236
-- LinkedIn: https://www.linkedin.com/in/priyanka-makwana-51128a295
+- [GitHub](https://github.com/priii-236)
+- [LinkedIn](https://www.linkedin.com/in/priyanka-makwana-51128a295)
 
 ---
 
