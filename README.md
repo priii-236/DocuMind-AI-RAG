@@ -132,6 +132,7 @@ DocuMind-AI-RAG/
 │
 ├── app/
 │   ├── streamlit_app.py
+    ├── styles.py
 │   ├── state.py
 │   └── pages/
 │       ├── 1_Analytics_Dashboard.py
