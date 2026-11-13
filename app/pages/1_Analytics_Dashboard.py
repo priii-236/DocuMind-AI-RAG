@@ -1,6 +1,5 @@
-
 """
-DocuMind AI — Premium Analytics Dashboard
+DocuMind AI — Analytics Dashboard
 Query performance, retrieval insights and RAG experiments.
 """
 
@@ -16,6 +15,7 @@ import plotly.express as px
 import streamlit as st
 
 from app.state import init_session_state
+from app.styles import card, footer, inject_css, metric_strip, page_header, section
 from src.config.settings import settings
 from src.observability.logger import trace_store
 
@@ -26,153 +26,14 @@ st.set_page_config(
 )
 
 init_session_state()
-
-# ---------------------------------------------------------
-# PREMIUM THEME
-# ---------------------------------------------------------
-
-st.markdown(
-    """
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-
-    .stApp {
-        background:
-            radial-gradient(ellipse at 10% 0%, rgba(100,70,210,.13), transparent 35%),
-            #080b16;
-        color: #f3f3ff;
-    }
-
-    html, body, [class*="css"] {
-        font-family: 'Inter', sans-serif;
-    }
-
-    [data-testid="stSidebar"] {
-        background: #10152a;
-    }
-
-    .page-label {
-        color: #a78bfa;
-        font-size: 11px;
-        font-weight: 800;
-        letter-spacing: 2px;
-        margin-bottom: 10px;
-    }
-
-    .page-title {
-        color: white;
-        font-size: 35px;
-        font-weight: 800;
-        letter-spacing: -1.3px;
-        margin-bottom: 5px;
-    }
-
-    .page-subtitle {
-        color: #9ca8c5;
-        font-size: 13px;
-        margin-bottom: 28px;
-    }
-
-    .metric-card {
-        background: linear-gradient(145deg, #1a2039, #111629);
-        border: 1px solid rgba(155,123,255,.19);
-        padding: 19px;
-        border-radius: 17px;
-        min-height: 125px;
-    }
-
-    .metric-label {
-        font-size: 12px;
-        color: #a5aec7;
-        margin-bottom: 12px;
-        font-weight: 600;
-    }
-
-    .metric-value {
-        font-size: 28px;
-        color: #ffffff;
-        font-weight: 800;
-    }
-
-    .metric-icon {
-        float: right;
-        font-size: 22px;
-    }
-
-    .section-heading {
-        font-size: 19px;
-        font-weight: 700;
-        color: #f3f3ff;
-        margin: 24px 0 14px 0;
-    }
-
-    .insight-card {
-        background: rgba(22,29,52,.9);
-        border: 1px solid rgba(155,123,255,.17);
-        border-radius: 15px;
-        padding: 17px;
-        min-height: 105px;
-    }
-
-    .insight-title {
-        color: #c4b5fd;
-        font-size: 12px;
-        font-weight: 700;
-        margin-bottom: 9px;
-    }
-
-    .insight-text {
-        color: #c0c7e0;
-        font-size: 13px;
-        line-height: 1.7;
-    }
-
-    .footer {
-        color: #77819e;
-        font-size: 11px;
-        text-align: center;
-        padding: 25px 0 10px;
-    }
-
-    [data-testid="stPlotlyChart"] {
-        background: rgba(19,25,46,.65);
-        border: 1px solid rgba(155,123,255,.12);
-        border-radius: 15px;
-        padding: 8px;
-    }
-
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
-
-# ---------------------------------------------------------
-# HELPERS
-# ---------------------------------------------------------
-
-def metric_card(icon, label, value):
-    st.markdown(
-        f"""
-        <div class="metric-card">
-            <div class="metric-icon">{icon}</div>
-            <div class="metric-label">{label}</div>
-            <div class="metric-value">{value}</div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-
-def section(title):
-    st.markdown(
-        f'<div class="section-heading">{title}</div>',
-        unsafe_allow_html=True,
-    )
-
+inject_css()
 
 # ---------------------------------------------------------
 # PLOTLY THEME
 # ---------------------------------------------------------
+
+_GRID = "rgba(255,255,255,.07)"
+
 
 def style_chart(fig):
     fig.update_layout(
@@ -180,22 +41,26 @@ def style_chart(fig):
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
         font=dict(
-            family="Inter",
-            color="#c4cbe0",
-            size=11,
+            family="Inter, sans-serif",
+            color="#D2D6E0",
+            size=13,
         ),
-        margin=dict(l=15, r=15, t=35, b=15),
+        title_font=dict(size=15, color="#E8E6E1"),
+        colorway=["#B8A27A", "#8EA1A8", "#C8C8C4", "#78B695"],
+        margin=dict(l=15, r=15, t=45, b=15),
         legend=dict(
             bgcolor="rgba(0,0,0,0)",
-            font=dict(color="#c4cbe0"),
+            font=dict(color="#D2D6E0", size=13),
         ),
         xaxis=dict(
-            gridcolor="rgba(155,123,255,.10)",
-            zerolinecolor="rgba(155,123,255,.10)",
+            gridcolor=_GRID,
+            zerolinecolor=_GRID,
+            linecolor=_GRID,
         ),
         yaxis=dict(
-            gridcolor="rgba(155,123,255,.10)",
-            zerolinecolor="rgba(155,123,255,.10)",
+            gridcolor=_GRID,
+            zerolinecolor=_GRID,
+            linecolor=_GRID,
         ),
     )
     return fig
@@ -205,16 +70,11 @@ def style_chart(fig):
 # HEADER
 # ---------------------------------------------------------
 
-st.markdown(
-    """
-    <div class="page-label">DOCUMIND AI / INTELLIGENCE</div>
-    <div class="page-title">Analytics Dashboard</div>
-    <div class="page-subtitle">
-        Monitor retrieval performance, response latency and AI quality.
-        Turn your document interactions into measurable insights.
-    </div>
-    """,
-    unsafe_allow_html=True,
+page_header(
+    "Workspace activity",
+    "Analytics Dashboard",
+    "Review how the workspace is being used, how quickly it responds, "
+    "and how often answers include supporting evidence.",
 )
 
 traces = trace_store.recent(500)
@@ -246,37 +106,24 @@ success_rate = (
 # OVERVIEW METRICS
 # ---------------------------------------------------------
 
-section("✦ Performance Overview")
+section("Performance overview")
 
-c1, c2, c3, c4 = st.columns(4)
-
-with c1:
-    metric_card("📚", "Documents Indexed", kb_stats["num_documents"])
-
-with c2:
-    metric_card("🧩", "Knowledge Chunks", kb_stats["num_chunks"])
-
-with c3:
-    metric_card("💬", "Queries Processed", len(traces))
-
-with c4:
-    metric_card("⚡", "Average Latency", f"{avg_latency:.2f}s")
-
-st.write("")
-
-c5, c6 = st.columns(2)
-
-with c5:
-    metric_card("🎯", "Average Confidence", f"{avg_confidence:.2f}")
-
-with c6:
-    metric_card("✅", "Retrieval Success Rate", f"{success_rate:.1f}%")
+metric_strip(
+    [
+        ("Documents", kb_stats["num_documents"]),
+        ("Indexed passages", kb_stats["num_chunks"]),
+        ("Questions", len(traces)),
+        ("Avg. response", f"{avg_latency:.2f}s"),
+        ("Avg. confidence", f"{avg_confidence:.2f}"),
+        ("Supported answers", f"{success_rate:.1f}%"),
+    ]
+)
 
 # ---------------------------------------------------------
 # ANALYTICS
 # ---------------------------------------------------------
 
-section("📈 Query & Retrieval Intelligence")
+section("Search and response activity")
 
 if not traces:
 
@@ -309,7 +156,7 @@ else:
 
     with left:
 
-        section("Query Volume Over Time")
+        section("Query volume over time")
 
         volume = (
             df.set_index("timestamp")
@@ -326,7 +173,7 @@ else:
         )
 
         fig.update_traces(
-            marker_color="#8b5cf6",
+            marker_color="#B8A27A",
             marker_line_width=0,
         )
 
@@ -335,7 +182,7 @@ else:
             use_container_width=True,
         )
 
-        section("Response Latency")
+        section("Response latency")
 
         fig = px.histogram(
             df,
@@ -345,7 +192,7 @@ else:
         )
 
         fig.update_traces(
-            marker_color="#60a5fa",
+            marker_color="#B8A27A",
             marker_line_width=0,
         )
 
@@ -356,7 +203,7 @@ else:
 
     with right:
 
-        section("Retrieval Confidence")
+        section("Retrieval confidence")
 
         fig = px.histogram(
             df,
@@ -366,7 +213,7 @@ else:
         )
 
         fig.update_traces(
-            marker_color="#a78bfa",
+            marker_color="#B8A27A",
             marker_line_width=0,
         )
 
@@ -375,7 +222,7 @@ else:
             use_container_width=True,
         )
 
-        section("Top Retrieved Documents")
+        section("Top retrieved documents")
 
         document_counts = {}
 
@@ -404,7 +251,7 @@ else:
             )
 
             fig.update_traces(
-                marker_color="#34d399",
+                marker_color="#B8A27A",
                 marker_line_width=0,
             )
 
@@ -420,7 +267,7 @@ else:
 # QUERY HISTORY
 # ---------------------------------------------------------
 
-section("📝 Recent Query Activity")
+section("Recent query activity")
 
 if traces:
 
@@ -453,20 +300,14 @@ else:
 
 st.divider()
 
-section("⚖️ Baseline vs Advanced RAG")
+section("Retrieval comparison")
 
-st.markdown(
-    """
-    <div class="insight-card">
-        <div class="insight-title">EXPERIMENT INSIGHTS</div>
-        <div class="insight-text">
-            Compare traditional dense retrieval against the advanced
-            hybrid RAG pipeline using Precision@K, Recall@K, MRR
-            and NDCG@K evaluation metrics.
-        </div>
-    </div>
-    """,
-    unsafe_allow_html=True,
+card(
+    body=(
+        "Compare dense retrieval with the hybrid search pipeline using Precision@K, Recall@K, MRR "
+        "and NDCG@K evaluation metrics."
+    ),
+    label="Evaluation results",
 )
 
 exp_path = settings.experiments_dir / "results.csv"
@@ -536,12 +377,7 @@ else:
 # FOOTER
 # ---------------------------------------------------------
 
-st.markdown(
-    """
-    <div class="footer">
-        DOCUMIND AI · ANALYTICS INTELLIGENCE<br>
-        Designed & Developed by Makwana Priyanka
-    </div>
-    """,
-    unsafe_allow_html=True,
+footer(
+    "DocuMind AI · Workspace activity",
+    "Designed & Developed by Makwana Priyanka",
 )

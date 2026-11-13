@@ -1,6 +1,5 @@
-
 """
-DocuMind AI — Premium Document Intelligence Assistant
+DocuMind AI — Document Intelligence Assistant
 Author: Makwana Priyanka
 """
 
@@ -14,6 +13,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import streamlit as st
 
 from app.state import init_session_state
+from app.styles import card, footer, inject_css, metric_strip, page_header, section
 from src.config.settings import settings
 from src.ingestion.loader import (
     DocumentIngestionError,
@@ -33,283 +33,18 @@ st.set_page_config(
 )
 
 init_session_state()
-
-# ---------------------------------------------------------
-# PREMIUM DARK UI
-# ---------------------------------------------------------
-
-st.markdown(
-    """
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-
-    :root {
-        --bg: #080b16;
-        --panel: #111629;
-        --panel2: #171d34;
-        --purple: #9b7bff;
-        --blue: #5b9dff;
-        --text: #f3f3ff;
-        --muted: #9ca6c2;
-    }
-
-    html, body, [class*="css"] {
-        font-family: 'Inter', sans-serif;
-    }
-
-    .stApp {
-        background:
-            radial-gradient(ellipse at 10% 0%, rgba(100,70,210,.16), transparent 35%),
-            radial-gradient(ellipse at 90% 20%, rgba(40,110,220,.10), transparent 35%),
-            #080b16;
-        color: var(--text);
-    }
-
-    [data-testid="stHeader"] {
-        background: rgba(8,11,22,.75);
-    }
-
-    [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #10152a 0%, #0b1020 100%);
-        border-right: 1px solid rgba(155,123,255,.18);
-    }
-
-    [data-testid="stSidebar"] > div:first-child {
-        padding-top: 1.5rem;
-    }
-
-    .brand {
-        font-size: 25px;
-        font-weight: 800;
-        letter-spacing: -1px;
-        color: #ffffff;
-        margin-bottom: 2px;
-    }
-
-    .brand span {
-        color: #a78bfa;
-    }
-
-    .brand-sub {
-        color: #929db9;
-        font-size: 11px;
-        letter-spacing: 2px;
-        text-transform: uppercase;
-    }
-
-    .hero {
-        position: relative;
-        overflow: hidden;
-        padding: 36px 34px;
-        border-radius: 23px;
-        background: linear-gradient(115deg,
-            rgba(85,65,170,.34),
-            rgba(28,54,111,.25),
-            rgba(17,22,41,.88));
-        border: 1px solid rgba(167,139,250,.28);
-        margin: 8px 0 25px 0;
-        box-shadow: 0 15px 50px rgba(0,0,0,.22);
-    }
-
-    .hero h1 {
-        font-size: clamp(28px, 4vw, 43px);
-        line-height: 1.15;
-        font-weight: 800;
-        letter-spacing: -1.8px;
-        color: white;
-        margin: 12px 0;
-    }
-
-    .hero p {
-        color: #c0c7e0;
-        font-size: 14px;
-        line-height: 1.8;
-        max-width: 650px;
-    }
-
-    .eyebrow {
-        display: inline-block;
-        padding: 6px 12px;
-        border-radius: 30px;
-        background: rgba(167,139,250,.13);
-        color: #c4b5fd;
-        border: 1px solid rgba(167,139,250,.28);
-        font-size: 11px;
-        font-weight: 700;
-        letter-spacing: 1.4px;
-    }
-
-    .section-heading {
-        font-size: 19px;
-        font-weight: 700;
-        color: #f3f3ff;
-        margin: 18px 0 12px 0;
-    }
-
-    .metric-card {
-        background: linear-gradient(145deg, #171e35, #111629);
-        border: 1px solid rgba(151,163,210,.15);
-        padding: 19px;
-        border-radius: 17px;
-        min-height: 115px;
-    }
-
-    .metric-label {
-        font-size: 12px;
-        color: #9ca8c5;
-        font-weight: 600;
-        margin-bottom: 12px;
-    }
-
-    .metric-value {
-        font-size: 29px;
-        color: #ffffff;
-        font-weight: 800;
-    }
-
-    .metric-icon {
-        font-size: 19px;
-        float: right;
-    }
-
-    .feature-card {
-        background: rgba(20,27,49,.86);
-        border: 1px solid rgba(155,123,255,.17);
-        border-radius: 17px;
-        padding: 20px;
-        min-height: 145px;
-    }
-
-    .feature-icon {
-        font-size: 25px;
-        margin-bottom: 12px;
-    }
-
-    .feature-title {
-        font-size: 14px;
-        font-weight: 700;
-        color: #eeeaff;
-        margin-bottom: 7px;
-    }
-
-    .feature-description {
-        font-size: 12px;
-        color: #a5aec7;
-        line-height: 1.6;
-    }
-
-    .suggestion {
-        background: rgba(20,27,49,.85);
-        border: 1px solid rgba(155,123,255,.2);
-        border-radius: 13px;
-        padding: 13px;
-        color: #d9d7ed;
-        font-size: 12px;
-        min-height: 66px;
-    }
-
-    .footer {
-        text-align: center;
-        color: #727e9b;
-        font-size: 11px;
-        padding: 28px 0 10px 0;
-        letter-spacing: .4px;
-    }
-
-    .status-pill {
-        display: inline-block;
-        background: rgba(34,197,94,.10);
-        border: 1px solid rgba(34,197,94,.25);
-        color: #86efac;
-        padding: 5px 10px;
-        border-radius: 20px;
-        font-size: 11px;
-        font-weight: 600;
-    }
-
-    div[data-testid="stChatMessage"] {
-        background: rgba(20,27,49,.65);
-        border: 1px solid rgba(155,123,255,.12);
-        border-radius: 16px;
-        padding: 14px;
-        margin-bottom: 12px;
-    }
-
-    .stButton > button {
-        border-radius: 11px;
-        border: 1px solid rgba(155,123,255,.3);
-        background: linear-gradient(110deg, #30245c, #202b50);
-        color: white;
-        font-weight: 600;
-        transition: .2s ease;
-    }
-
-    .stButton > button:hover {
-        border-color: #a78bfa;
-        color: white;
-        background: linear-gradient(110deg, #493681, #293b70);
-        transform: translateY(-1px);
-    }
-
-    .stTextInput input,
-    .stNumberInput input {
-        background: #171d34;
-        color: white;
-        border-radius: 10px;
-    }
-
-    [data-testid="stChatInput"] {
-        border-color: rgba(155,123,255,.3);
-    }
-
-    .stProgress > div > div > div {
-        background: linear-gradient(90deg, #8b5cf6, #60a5fa);
-    }
-
-    hr {
-        border-color: rgba(155,163,210,.15);
-    }
-
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
+inject_css()
 
 # ---------------------------------------------------------
 # HELPER FUNCTIONS
 # ---------------------------------------------------------
-
-def metric_card(icon, label, value):
-    st.markdown(
-        f"""
-        <div class="metric-card">
-            <div class="metric-icon">{icon}</div>
-            <div class="metric-label">{label}</div>
-            <div class="metric-value">{value}</div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-
-def feature_card(icon, title, description):
-    st.markdown(
-        f"""
-        <div class="feature-card">
-            <div class="feature-icon">{icon}</div>
-            <div class="feature-title">{title}</div>
-            <div class="feature-description">{description}</div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
 
 
 def render_evidence(evidence):
     if not evidence:
         return
 
-    with st.expander(f"📎 View Sources & Evidence ({len(evidence)})"):
+    with st.expander(f"View sources & evidence ({len(evidence)})"):
         for e in evidence:
             location = (
                 f"Page {e.page_number}"
@@ -338,19 +73,19 @@ with st.sidebar:
 
     st.markdown(
         """
-        <div class="brand">🧠 Docu<span>Mind</span> AI</div>
-        <div class="brand-sub">Document Intelligence</div>
+        <div class="brand">Docu<span>Mind</span> AI</div>
+        <div class="brand-sub">Your document workspace</div>
         """,
         unsafe_allow_html=True,
     )
 
     st.write("")
-    st.markdown('<span class="status-pill">● Workspace Active</span>',
+    st.markdown('<span class="pill">Workspace ready</span>',
                 unsafe_allow_html=True)
 
     st.divider()
 
-    st.markdown("### 📚 Knowledge Base")
+    st.markdown("### Knowledge Base")
 
     uploaded_files = st.file_uploader(
         "Add your documents",
@@ -359,7 +94,7 @@ with st.sidebar:
         help=f"Maximum {settings.max_file_size_mb} MB per file.",
     )
 
-    with st.expander("⚙️ Advanced indexing settings"):
+    with st.expander("Advanced indexing settings"):
 
         col1, col2 = st.columns(2)
 
@@ -388,7 +123,7 @@ with st.sidebar:
         )
 
     if uploaded_files and st.button(
-        "⬆️ Index Documents",
+        "Index Documents",
         use_container_width=True,
     ):
 
@@ -441,7 +176,7 @@ with st.sidebar:
     col1.metric("Documents", stats["num_documents"])
     col2.metric("Chunks", stats["num_chunks"])
 
-    if st.button("🗑️ Clear Knowledge Base", use_container_width=True):
+    if st.button("Clear Knowledge Base", use_container_width=True):
 
         st.session_state.kb.clear()
         st.session_state.chat_history = []
@@ -450,7 +185,7 @@ with st.sidebar:
 
     st.divider()
 
-    st.markdown("### 🔍 Retrieval Controls")
+    st.markdown("### Retrieval Controls")
 
     st.session_state.top_k = st.slider(
         "Top-K chunks",
@@ -480,7 +215,7 @@ with st.sidebar:
 
     st.divider()
 
-    st.markdown("### ✨ AI Generation")
+    st.markdown("### AI Generation")
 
     st.session_state.temperature = st.slider(
         "Temperature",
@@ -500,7 +235,7 @@ with st.sidebar:
 
     st.divider()
 
-    with st.expander("🖥️ System Information"):
+    with st.expander("System Information"):
 
         st.caption(f"Provider: {settings.llm_provider.upper()}")
         st.caption(f"Model: {settings.llm_model}")
@@ -523,40 +258,26 @@ stats = st.session_state.kb.stats()
 num_documents = stats["num_documents"]
 num_chunks = stats["num_chunks"]
 
-st.markdown(
-    """
-    <div class="hero">
-        <span class="eyebrow">✦ NEXT-GENERATION DOCUMENT AI</span>
-        <h1>Knowledge, beyond<br>the documents.</h1>
-        <p>
-            Your intelligent document workspace. Upload your knowledge,
-            ask natural-language questions and discover evidence-backed
-            insights with Retrieval-Augmented Generation.
-        </p>
-        <span class="status-pill">● AI WORKSPACE READY</span>
-    </div>
-    """,
-    unsafe_allow_html=True,
+page_header(
+    "Document workspace",
+    "Ask questions. Find clear answers.",
+    "Upload documents, search their contents, and review the sources behind each answer.",
+    pill="Ready for your documents",
 )
 
 # Dashboard metrics
 
-st.markdown('<div class="section-heading">Your Workspace Overview</div>',
-            unsafe_allow_html=True)
+section("Workspace overview")
 
-m1, m2, m3, m4 = st.columns(4)
-
-with m1:
-    metric_card("📚", "Documents Indexed", num_documents)
-
-with m2:
-    metric_card("🧩", "Knowledge Chunks", num_chunks)
-
-with m3:
-    metric_card("💬", "Chat Conversations", len(st.session_state.chat_history))
-
-with m4:
-    metric_card("⚡", "AI Provider", settings.llm_provider.upper())
+metric_strip(
+    [
+        ("Documents", num_documents),
+        ("Indexed passages", num_chunks),
+        ("Conversations", len(st.session_state.chat_history)),
+        ("Provider", settings.llm_provider.upper()),
+    ],
+    compact=True,
+)
 
 st.write("")
 
@@ -572,10 +293,7 @@ if st.session_state.llm_error:
 
 if num_chunks == 0:
 
-    st.markdown(
-        '<div class="section-heading">Get Started with DocuMind</div>',
-        unsafe_allow_html=True,
-    )
+    section("Start with your documents")
 
     st.info(
         "Your knowledge base is currently empty. "
@@ -586,32 +304,22 @@ if num_chunks == 0:
     c1, c2, c3 = st.columns(3)
 
     with c1:
-        feature_card(
-            "📂",
-            "Upload Documents",
+        card(
+            "Upload documents",
             "Bring your PDFs, Word files, CSVs and other documents into one workspace.",
         )
 
     with c2:
-        feature_card(
-            "🔎",
-            "Smart Retrieval",
-            "Find relevant information using semantic and keyword-based search.",
+        card(
+            "Search across files",
+            "Find relevant passages with keyword and meaning-based search.",
         )
 
     with c3:
-        feature_card(
-            "✨",
-            "Grounded AI Answers",
-            "Ask questions and receive evidence-backed answers with citations.",
+        card(
+            "Review the sources",
+            "See the passages used to support each response.",
         )
-
-    st.write("")
-
-    st.markdown(
-        '<div class="footer">Your documents. Your knowledge. One intelligent workspace.</div>',
-        unsafe_allow_html=True,
-    )
 
 # ---------------------------------------------------------
 # CHAT WORKSPACE
@@ -619,14 +327,11 @@ if num_chunks == 0:
 
 else:
 
-    st.markdown(
-        '<div class="section-heading">💬 AI Conversation Workspace</div>',
-        unsafe_allow_html=True,
-    )
+    section("Ask about your documents")
 
     st.caption(
-        "Ask questions about your indexed documents. "
-        "DocuMind AI retrieves relevant evidence before generating an answer."
+        "Ask a question about the files in your workspace. "
+        "Relevant passages are reviewed before an answer is written."
     )
 
     # Welcome suggestions when no conversation exists
@@ -635,18 +340,10 @@ else:
 
         st.write("")
 
-        st.markdown(
-            """
-            <div class="feature-card">
-                <div class="feature-icon">✦</div>
-                <div class="feature-title">Hello! I'm DocuMind AI.</div>
-                <div class="feature-description">
-                    I've got your documents ready. What would you like to discover today?
-                    Ask me anything based on your uploaded knowledge.
-                </div>
-            </div>
-            """,
-            unsafe_allow_html=True,
+        card(
+            "Your documents are ready.",
+            "Ask a question below to find information across the files you have indexed.",
+            accent=True,
         )
 
         st.write("")
@@ -781,12 +478,7 @@ else:
 # FOOTER
 # ---------------------------------------------------------
 
-st.markdown(
-    """
-    <div class="footer">
-        DOCUMIND AI · INTELLIGENT DOCUMENT ASSISTANT<br>
-        Crafted with precision, powered by Retrieval-Augmented Generation.
-    </div>
-    """,
-    unsafe_allow_html=True,
+footer(
+    "DocuMind AI · Document assistant",
+    "Search, review, and work from your source material.",
 )
