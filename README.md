@@ -506,6 +506,14 @@ Focus Areas: Data Science | Machine Learning | Generative AI
 
 ---
 
+## 🚀 Live Application
+
+Experience DocuMind AI in action:
+
+🔗 **[Launch DocuMind AI – Live Demo](https://documind-ai-rag-dggfwxu24uegdyfbxgtmdt.streamlit.app/)**
+
+---
+
 ## ⭐ Support
 
 If you find this project interesting, consider giving the repository a ⭐ on GitHub!
